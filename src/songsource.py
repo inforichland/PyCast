@@ -8,6 +8,10 @@ import os
 import fnmatch
 import re
 
+# ensure that you add any new classes to
+# the song_source_classes dict at the bottom of this
+# file so they can be used in argument parsing
+
 class DefaultSongSource(object):
     """Calling nextSong() on this will return a
 filename which the shoutcast server can use as the next file to play
@@ -45,3 +49,9 @@ class OsWalkSongSource(object):
             return self.files.next()
         else:
             return nextFile
+
+
+# ensure you add any new classes here
+# so you can use these in the argument parsing
+song_source_classes = {'default':DefaultSongSource, 
+                       'walk':OsWalkSongSource}
