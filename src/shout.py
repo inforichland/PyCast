@@ -9,6 +9,8 @@
 # Copyright: (c) Tim Wawrzynczak, MMXI
 # License: BSD 3-clause
 
+# http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
+
 import logging
 import asyncore
 import socket
@@ -17,6 +19,7 @@ import os
 import sys
 import re
 import id3reader # available from pip
+import ConfigParser
 
 try:
     import songsource
@@ -87,8 +90,6 @@ class ShoutHandler(asyncore.dispatcher):
             if self.metadata_re.search(data):
                 self.wants_metadata = True
                 log.debug("Client wants metadata")
-            else:
-                log.debug("Client sent: %s\n", data)
         else:
             log.debug("got null data")
 
@@ -224,7 +225,14 @@ to clients."""
 # if we're run as a script, then just run the server
 if __name__ == '__main__':
     try:
-        server = ShoutServer((server_address, server_port))
+        config = ConfigParser.ConfigParser()
+        config.read('shout.cfg')
+        source = config.get('source', 'type')
+        songSource = songsource.song_source_classes[source]
+    except:
+        print >>sys.stderr, "Invalid song source type in config file!"
+    try:
+        server = ShoutServer((server_address, server_port), songSource)
         server.serve()
     except KeyboardInterrupt:
         print "\nGoodbye!"
